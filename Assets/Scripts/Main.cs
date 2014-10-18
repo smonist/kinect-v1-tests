@@ -5,13 +5,11 @@ using System.Collections;
 public class Main : MonoBehaviour {
 	public bool isMoving = false;
 	public GUIText GUIplayerInView;
-	public GUIText GUIjoint;
 	public GUIText GUIjointPosition;
 
 	// Use this for initialization
 	void Start () {
 		//QualitySettings.vSyncCount = 1;
-		GameObject Hand_Right;
 	}
 	
 	// Update is called once per frame
