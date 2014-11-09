@@ -14,18 +14,11 @@ public class Main : MonoBehaviour {
 	Vector3 globalAcceleration;
 	Vector3 localAcceleration;
 
+	int[] jointList = {0,1,3,4,5,7,8,9,11,13,15,17,19};
+	//int[] jointList = {11};
+
 	// Use this for initialization
 	void Start () {
-		//QualitySettings.vSyncCount = 1;
-		/*for (int i = 0; i < 25; i++) {
-			Debug.Log(i.ToString());
-			jointCache.Add(new List<Vector3>());
-				for (int u = 0; u < frameBufferCount; u++) {
-				jointCache[0].Add(new Vector3 (0, 0, 0));
-			}
-		}*/
-
-		//create nested List and fill it with zero'd Vector3
 		List<Vector3> tempList = new List<Vector3>();
 		for (int u = 0; u < frameBufferCount; u++) {
 			tempList.Add(new Vector3(0, 0, 0));
@@ -44,11 +37,10 @@ public class Main : MonoBehaviour {
 
 		if (playerID > 0) {
 			GUIplayerInView.text = "Player present";
+			globalAcceleration.Set(0, 0, 0);
 
-			int jointsCount = (int)KinectWrapper.NuiSkeletonPositionIndex.Count;
-			//GUIjointPosition.text = jointsCount.ToString();
-			for (int i = 0; i < jointsCount; i++) {
-
+			int jointsCount = jointList.Length;
+			foreach (int i in jointList) {
 				if(KinectManager.Instance.IsJointTracked(playerID, i)) {
 					int joint = i;
 
@@ -59,13 +51,13 @@ public class Main : MonoBehaviour {
 				}
 			}
 
-			globalAcceleration.Set(0, 0, 0);
 			for (int i = 0; i < jointsCount; i++) {
 				localAcceleration = (jointCache[i][0] - jointCache[i][jointCache[i].Count - 1]);
-
-				if (!V3Equal(localAcceleration, Vector3.zero))
+				if (!V3Equal(localAcceleration, Vector3.zero)) {
+					localAcceleration = V3Invert(localAcceleration);
 					globalAcceleration += localAcceleration;
 				}
+			}
 
 			if (!V3Equal (globalAcceleration, Vector3.zero)) {
 				GUIisMoving.text = "moving";
@@ -75,17 +67,6 @@ public class Main : MonoBehaviour {
 			}
 
 			GUIacceleration.text = globalAcceleration.ToString();
-			/*acceleration = (posJoint - jointCache[jointCache.Count - 1]);
-			
-			if (!V3Equal(acceleration,Vector3.zero)) {
-				GUIisMoving.text = "moving";
-			}
-			else {
-				GUIisMoving.text = "-";
-			}
-			
-			GUIacceleration.text = acceleration.ToString();
-			*/
 		}
 		else {
 			GUIplayerInView.text = "no player";
@@ -94,5 +75,18 @@ public class Main : MonoBehaviour {
 
 	public bool V3Equal(Vector3 a, Vector3 b){
 		return Vector3.SqrMagnitude(a - b) < 0.0001;
+	}
+
+	public Vector3 V3Invert(Vector3 input) {
+		if (input.x < 0) {
+			input[0] = (input.x * -1);
+		}
+		if (input.y < 0) {
+			input[1] = (input.y * -1);
+		}
+		if (input.z < 0) {
+			input[2] = (input.z * -1);
+		}
+		return input;
 	}
 }
